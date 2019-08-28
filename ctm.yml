@@ -1,0 +1,3 @@
+ctm:
+  - type: artifactory-maven
+    output: ~/pom.xml

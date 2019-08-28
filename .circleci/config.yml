@@ -1,41 +1,153 @@
-# Java Maven CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-java/ for more details
-#
+# Edit these variables for your project
+working_dir: &working_dir
+               ~/keap-on-boarding
+
+pancakes_docker_image: &pancakes_docker_image
+                         gcr.io/infusionsoft-build-images/pancakes-google-cloud/build-container:9.0.x
+
+# You should not have to edit anything below this line for a pancakes service
+test_results_dir: &test_results_dir
+                    /tmp/circleci-test-results
+
+artifacts_dir: &artifacts_dir
+                 /tmp/circleci-artifacts
+
+build_container: &build_container
+  working_directory: *working_dir
+  docker:
+    - image: *pancakes_docker_image
+  environment:
+    CIRCLE_ARTIFACTS: *artifacts_dir
+    CIRCLE_TEST_REPORTS: *test_results_dir
+    _JAVA_OPTIONS: '-Xms512m -Xmx1024m'
+    GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx1024m"'
+    TERM: dumb
+
+restore_gradle_cache: &restore_gradle_cache
+  restore_cache:
+    keys:
+      - v1-gradle-{{ .Branch }}-{{ checksum "global.lock" }}
+      - v1-gradle-{{ .Branch }}
+      - v1-gradle
+
+save_gradle_cache: &save_gradle_cache
+  save_cache:
+    key: v1-gradle-{{ .Branch }}-{{ checksum "global.lock" }}-{{ epoch }}
+    paths:
+      - ~/.m2/repository
+      - ~/.gradle/caches
+
+save_test_results: &save_test_results
+  store_test_results:
+    path: *test_results_dir
+
+save_artifacts: &save_artifacts
+  store_artifacts:
+    path: *artifacts_dir
+
+collect_artifacts: &collect_artifacts
+  run:
+    name: "Collect Test Output and Artifacts"
+    command: pancakes_build_collect_artifacts
+    when: always
+
 version: 2
+
+workflows:
+  version: 2
+  pancakes:
+    jobs:
+      - pull_request:
+          filters:
+            branches:
+              ignore: /master/
+      - master_merge:
+          filters:
+            branches:
+              only: /master/
+      - master_merge_deploy_sand:
+          requires:
+            - master_merge
+          filters:
+            branches:
+              only: /master/
+      - tag_release:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - tag_release_deploy_sand:
+          requires:
+            - tag_release
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - tag_release_deploy_prod:
+          requires:
+            - tag_release
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
 jobs:
-  build:
-    docker:
-      # specify the version you desire here
-      - image: circleci/openjdk:8-jdk
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
-    working_directory: ~/keap-on-boarding
-
-    environment:
-      # Customize the JVM maximum heap limit
-      MAVEN_OPTS: -Xmx3200m
-
+  pull_request:
+    <<: *build_container
     steps:
       - checkout
+      - *restore_gradle_cache
+      - run: pancakes_build_pull_request
+      - *collect_artifacts
+      - *save_gradle_cache
+      - *save_test_results
+      - *save_artifacts
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "pom.xml" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+  master_merge:
+    <<: *build_container
+    steps:
+      - checkout
+      - *restore_gradle_cache
+      - run: pancakes_build_master_merge
+      - *collect_artifacts
+      - *save_gradle_cache
+      - *save_test_results
+      - *save_artifacts
 
-      - run: mvn dependency:go-offline
+  master_merge_deploy_sand:
+    <<: *build_container
+    steps:
+      - checkout
+      - *restore_gradle_cache
+      # Deploy the service to sand and don't promote traffic
+      - run: pancakes_build_appengine_deploy master
 
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
+  tag_release:
+    <<: *build_container
+    steps:
+      - checkout
+      - *restore_gradle_cache
+      - run: pancakes_build_tag_release
+      - *collect_artifacts
+      - *save_gradle_cache
+      - *save_test_results
+      - *save_artifacts
 
-      # run tests!
-      - run: mvn integration-test
+  tag_release_deploy_sand:
+    <<: *build_container
+    steps:
+      - checkout
+      - *restore_gradle_cache
+      # Deploy the service to sand and promote traffic
+      - run: pancakes_build_appengine_deploy sand
+
+  tag_release_deploy_prod:
+    <<: *build_container
+    steps:
+      - checkout
+      - *restore_gradle_cache
+      # Deploy the service to prod and don't promote traffic
+      - run: pancakes_build_appengine_deploy prod
