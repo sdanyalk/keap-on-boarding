@@ -39,3 +39,8 @@ jobs:
 
       # run tests!
       - run: mvn integration-test
+
+      - run:
+          name: "Publish coverage reports to Codecov"
+          command: bash <(curl -s https://codecov.io/bash)
+          when: always
