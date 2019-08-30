@@ -45,3 +45,17 @@ jobs:
           name: "Publish coverage reports to Codecov"
           command: bash <(curl -s https://codecov.io/bash) -t ${CODECOV_TOKEN}
           when: always
+
+  release_to_sand:
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - checkout
+      - run:
+          name: Deploy to app engine sand
+          command: |
+            echo $CIRCLE_GOOGLE_SERVICE_ACCOUNT_JSON_SAND | base64 -d >> /tmp/google-auth-sand.json
+            gcloud auth activate-service-account --key-file=/tmp/google-auth-sand.json
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            export GOOGLE_APPLICATION_CREDENTIALS=/tmp/google-auth-sand.json
+            ./mvnw appengine:deploy -DskipTests -Dspring.profiles.active=sand -Dapp.stage.appEngineDirectory=src/main/appengine/sand
