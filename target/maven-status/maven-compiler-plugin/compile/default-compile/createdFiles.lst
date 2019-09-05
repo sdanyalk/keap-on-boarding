@@ -1,0 +1,4 @@
+com/keap/taskapi/controller/TaskController.class
+com/keap/taskapi/model/Task.class
+com/keap/taskapi/TaskApiApplication.class
+com/keap/taskapi/model/Contact.class
