@@ -11,15 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TaskController {
 
-//    @RequestMapping(
-//            path = "/tasks",
-//            method = RequestMethod.GET,
-//            produces = MediaType.APPLICATION_JSON_VALUE)
-
-    @GetMapping(
+    @RequestMapping(
             path = "/tasks",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Task> getTasks() {
         Task task = new Task();
         task.setId(1);

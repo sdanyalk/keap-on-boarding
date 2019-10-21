@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>On boarding App</title>
+
+    <!--Bootstrap CSS-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!--Jquery-->
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <!--Bootstrap JS-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+    <!--Project JS-->
+    <script src="assets/js/main.js"></script>
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+
+<div class="jumbotron jumbotron-fluid keap-background">
+    <div class="container">
+        <img src="./assets/images/keap-logo-green.svg" width="100" height="100" class="d-inline-block align-center"
+             alt="keap logo">
+        <p class="lead">This is Danyal Khalid's On-boarding project.</p>
+    </div>
+</div>
+
+<div class="container">
+    <form action="https://signin.infusionsoft.com/app/oauth/authorize" method="post">
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="inputClientId">Client ID</label>
+                <input type="text" name="client_id" class="form-control" id="inputClientId" placeholder="hdd5kbjwmxh2rpvzn899mddp">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="inputRedirectUri">Redirect Uri</label>
+                <input type="text" name="redirect_uri" class="form-control" id="inputRedirectUri" placeholder="http://localhost:8080/">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="inputResponseType">Response Type</label>
+                <input type="text" name="response_type" class="form-control" id="inputResponseType" placeholder="code">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="inputScope">Scope</label>
+                <input type="text" name="scope" class="form-control" id="inputScope" placeholder="full">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Sign in</button>
+    </form>
+</div>
+
+</body>
+</html>
