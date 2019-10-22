@@ -20,3 +20,14 @@ The following are required to run the project
 OpenJDK 8
 Maven
 ```
+
+## Technologies
+
+This project makes use of the following technologies
+```
+Springboot 2.0 - for API development
+CircleCI - for CI/CD
+Google Cloud Platform - for hosting the APIs
+CodeCov - for code coverage
+OAuth 2.0 - for authentication
+```
