@@ -25,6 +25,6 @@ public class TaskController {
 
     @GetMapping("/")
     public String hello() {
-        return "Hello Spring Boot!";
+        return "Hello World";
     }
 }
